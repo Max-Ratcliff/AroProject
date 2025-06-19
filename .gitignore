@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+*.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Data Files & Folders - IMPORTANT
+# Ignore all common data formats and output folders
+*.csv
+*.tif
+*.tiff
+*.png
+*.jpg
+Leticia_M4576_s2/
+Leticia_M4576_s2_Fiji/
+Spore_Segmentation/
+test/
+
+# OS-specific files
+.DS_Store
