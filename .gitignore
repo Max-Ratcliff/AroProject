@@ -5,8 +5,8 @@ venv/
 *.env
 
 # Jupyter Notebooks
-.ipynb_checkpoints
-*.ipynb
+# .ipynb_checkpoints
+# *.ipynb
 
 # Data Files & Folders - IMPORTANT
 # Ignore all common data formats and output folders
