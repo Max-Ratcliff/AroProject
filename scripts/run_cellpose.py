@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cellpose import core, io, models  # , plot
 from natsort import natsorted
+from dotenv import load_dotenv
+import os
 # from tqdm import trange
 
 io.logger_setup()
@@ -13,14 +15,26 @@ if core.use_gpu() is False:
 
 model = models.CellposeModel(gpu=True)
 
-dir = "/Users/mratcliff/Desktop/AroProject/"
-data_dir = dir + "Leticia_M4576_s2/M4576_s2_PH/"
+load_dotenv()
+ROOT = os.getenv("DATA_ROOT")
+if ROOT is None:
+    raise ValueError("DATA_ROOT environment variable is not set. Please set it to the root directory of your data.")
 
-test_out = dir + "test/"
+# EXPERIMENT = "Leticia_M4576_s2"
+EXPERIMENT = "Pulses_ThT"
+CHANNEL = "ThT"
+ROOT = Path(ROOT)
+# DATA_DIR = ROOT / f"data/raw/{EXPERIMENT}/M4576_s2_PH/"
+DATA_DIR = ROOT / f"data/raw/{EXPERIMENT}/M4581_s2_PH_stabilized/"
 
-test_out = Path(test_out)
+OUTPUT_DIR = ROOT / f"data/processed/cellpose/{EXPERIMENT}_{CHANNEL}"
 
-path = Path(data_dir)
+OUTPUT_DIR = Path(OUTPUT_DIR)
+if not OUTPUT_DIR.exists():
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"Created output directory: {OUTPUT_DIR}")
+
+path = Path(DATA_DIR)
 
 image_ext = ".tif"
 
@@ -68,11 +82,12 @@ tile_norm_blocksize = 0
 
 fig = plt.figure(figsize=(12, 5))
 plt.imshow(img)
-plt.title('Original Image')
+# plt.title('Original Image')
 plt.axis('off')
 plt.tight_layout()
-plt.show()
-fig.savefig(test_out / "original_image.jpg", bbox_inches='tight', pad_inches=0)
+# plt.show()
+fig.savefig(OUTPUT_DIR / "original_image.jpg", bbox_inches='tight', pad_inches=0)
+print(f"Original image saved to {OUTPUT_DIR / 'original_image.jpg'}")
 
 print("Running Cellpose model...")
 print(f"Image shape: {img.shape}")
@@ -93,7 +108,7 @@ print(f"Number of styles found: {len(styles)}")
 print(f"Mask shape: {masks[0].shape}")
 # print(f"Flow shape: {flows.shape}")
 # Save masks and flows
-output_file_path = test_out / files[0].name
+output_file_path = OUTPUT_DIR / files[0].name
 
 # The save_masks function expects lists of images, masks, flows, and filenames
 io.save_masks(
@@ -102,7 +117,7 @@ io.save_masks(
     [flows[0]],          # Flows, in a list
     [str(output_file_path)]  # File path, in a list
 )
-print(f"Masks and flows saved to {test_out}")
+print(f"Masks and flows saved to {OUTPUT_DIR}")
 
 # fig = plt.figure(figsize=(12, 5))
 # plot.show_segmentation(fig, img, masks[0], flows[0])
@@ -137,4 +152,6 @@ axs[2].set_title('RGB Flow Visualization')
 axs[2].axis('off')
 
 plt.tight_layout()
-plt.show()
+
+fig.savefig(OUTPUT_DIR / "flow_visualization.jpg", bbox_inches='tight', pad_inches=0)
+print(f"Flow visualization saved to {OUTPUT_DIR / 'flow_visualization.jpg'}")

@@ -1,0 +1,1 @@
+DATA_ROOT="/Users/mratcliff/Documents/GitHub/AroProject"

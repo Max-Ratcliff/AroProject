@@ -4,6 +4,8 @@ from pathlib import Path
 from skimage import io, measure
 from natsort import natsorted
 from tqdm import tqdm
+from dotenv import load_dotenv
+import os
 
 
 def process_timelapse_with_mask(data_dir: Path, mask_file: Path, output_csv: Path):
@@ -71,24 +73,30 @@ def process_timelapse_with_mask(data_dir: Path, mask_file: Path, output_csv: Pat
 
 
 # --- Configuration ---
-BASE_DIR = Path("/Users/mratcliff/Desktop/AroProject/")
-EXP_FOLDER = "Leticia_M4576_s2"
-MICROSCOPY_TYPE = "PH"
+load_dotenv()  # Load environment variables from .env file if needed
+DATA_ROOT = os.getenv("DATA_ROOT")
+if DATA_ROOT is None:
+    raise ValueError("DATA_ROOT environment variable is not set. Please set it to the root directory of your data.")
+
+ROOT = Path(DATA_ROOT)
+# EXPERIMENT = "Leticia_M4576_s2"
+EXPERIMENT = "Pulses_ThT"
+MICROSCOPY_TYPE = "ThT"
 
 # The source directory for the original images
-DATA_DIR = BASE_DIR / EXP_FOLDER / "M4576_s2_PH"
+DATA_DIR = ROOT / "data/raw" / EXPERIMENT / "M4581_s2_PH_stabilized"
 
 # The output directory for the results CSV
-OUTPUT_DIR = BASE_DIR / f"{EXP_FOLDER}_Fiji"
+OUTPUT_DIR = ROOT / "data/processed" / f"{EXPERIMENT}_Fiji"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 # --- MODIFIED LINE ---
 # Directly point to the mask file generated in your '/test/' folder.
-MASK_FILE = Path("/Users/mratcliff/Desktop/AroProject/test/M4576_s2_PH_stabilized_0000_cp_masks.png")
+MASK_FILE = ROOT / "data/processed/cellpose" / f"{EXPERIMENT}_{MICROSCOPY_TYPE}" / "M4581_s2_PH_stabilized_0000_cp_masks.png"
 
 # Construct the output CSV filename as required by your processing script.
 # Using "PhC" for compatibility with your notebook.
-OUTPUT_CSV = OUTPUT_DIR / f"{EXP_FOLDER}_PhC_Results.csv"
+OUTPUT_CSV = OUTPUT_DIR / f"{EXPERIMENT}_PhC_Results.csv"
 
 
 # --- Run Processing ---

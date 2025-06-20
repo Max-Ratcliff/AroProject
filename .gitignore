@@ -15,10 +15,13 @@ venv/
 *.tiff
 *.png
 *.jpg
+*.rtf
 Leticia_M4576_s2/
 Leticia_M4576_s2_Fiji/
 Spore_Segmentation/
 test/
+autofluorescence/
+Pulses_ThT/
 
 # OS-specific files
 .DS_Store
