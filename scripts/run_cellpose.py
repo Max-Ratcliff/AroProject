@@ -16,40 +16,39 @@ if core.use_gpu() is False:
 model = models.CellposeModel(gpu=True)
 
 load_dotenv()
-ROOT = os.getenv("DATA_ROOT")
-if ROOT is None:
-    raise ValueError("DATA_ROOT environment variable is not set. Please set it to the root directory of your data.")
+# Load all configuration from the .env file
+DATA_ROOT = os.getenv("DATA_ROOT")
+EXPERIMENT = os.getenv("EXPERIMENT_NAME")
+RAW_SUBFOLDER = os.getenv("RAW_SUBFOLDER")
+MICROSCOPY_TYPE = os.getenv("MICROSCOPY_TYPE")
+MASK_FILENAME = os.getenv("MASK_FILENAME")
 
-# EXPERIMENT = "Leticia_M4576_s2"
-EXPERIMENT = "Pulses_ThT"
-CHANNEL = "ThT"
-ROOT = Path(ROOT)
-# DATA_DIR = ROOT / f"data/raw/{EXPERIMENT}/M4576_s2_PH/"
-DATA_DIR = ROOT / f"data/raw/{EXPERIMENT}/M4581_s2_PH_stabilized/"
+if not all([DATA_ROOT, EXPERIMENT, RAW_SUBFOLDER, MICROSCOPY_TYPE, MASK_FILENAME]):
+    raise ValueError("One or more required variables are not set in your .env file.")
 
-OUTPUT_DIR = ROOT / f"data/processed/cellpose/{EXPERIMENT}_{CHANNEL}"
+DATA_ROOT = Path(DATA_ROOT)
+DATA_DIR = DATA_ROOT / "data" / "raw" / EXPERIMENT / RAW_SUBFOLDER
 
-OUTPUT_DIR = Path(OUTPUT_DIR)
+OUTPUT_DIR = DATA_ROOT / f"data/processed/cellpose/{EXPERIMENT}_{MICROSCOPY_TYPE}"
+
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"Created output directory: {OUTPUT_DIR}")
-
-path = Path(DATA_DIR)
 
 image_ext = ".tif"
 
 files = natsorted(
     [
         file
-        for file in path.glob("*" + image_ext)
+        for file in DATA_DIR.glob("*" + image_ext)
         if "_masks" not in file.name and "_flows" not in file.name
     ]
 )
 
 if len(files) == 0:
-    raise FileNotFoundError(f"No files found with extension {image_ext} in {path}")
+    raise FileNotFoundError(f"No files found with extension {image_ext} in {DATA_DIR}")
 else:
-    print(f"Found {len(files)} files with extension {image_ext} in {path}")
+    print(f"Found {len(files)} files with extension {image_ext} in {DATA_DIR}")
 
 for file in files:
     print(f"{file.name}")
