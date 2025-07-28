@@ -44,13 +44,13 @@ This project contains the scripts and notebooks used to analyze spore germinatio
     ├── reports
     │   └── figures
     └── scripts
-2.  **Segmentation:** `scripts/run_cellpose.py` - Segments spores from raw TIFF images.
-3.  **Measurement:** `scripts/run_mask_analysis.py` - Measures spore properties using the generated masks.
-4.  **Analysis:** `notebooks/MultiMeasure_Processing.ipynb` - Merges and analyzes data from different channels.
-5.  **Metrics Calculation:** `notebooks/exp_metrics.ipynb` - Calculates experimental metrics based on the processed data.
+2. **Segmentation:** `scripts/run_cellpose.py` - Segments spores from raw TIFF images.
+3. **Measurement:** `scripts/run_mask_analysis.py` - Measures spore properties using the generated masks.
+4. **Analysis:** `notebooks/MultiMeasure_Processing.ipynb` - Merges and analyzes data from different channels.
+5. **Metrics Calculation:** `notebooks/exp_metrics.ipynb` - Calculates experimental metrics based on the processed data.
 
 ## How to Run
 
-1.  Install dependencies: `pip install -r requirements.txt`
-2.  Place raw data in the appropriate folders.
-3.  Run the scripts in order.
+1. Install dependencies: `pip install -r requirements.txt`
+2. Place raw data in the appropriate folders.
+3. Run the scripts in order.
