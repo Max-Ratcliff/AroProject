@@ -3,9 +3,8 @@ import pandas as pd
 from pathlib import Path
 from skimage import io, measure
 from natsort import natsorted
+import json
 from tqdm import tqdm
-from dotenv import load_dotenv
-import os
 
 
 def process_timelapse_with_mask(data_dir: Path, mask_file: Path, output_csv: Path):
@@ -79,19 +78,21 @@ def process_timelapse_with_mask(data_dir: Path, mask_file: Path, output_csv: Pat
 
 
 # --- Configuration ---
-load_dotenv()  # Load environment variables from .env file if needed
-# Load all configuration from the .env file
-DATA_ROOT = os.getenv("DATA_ROOT")
-EXPERIMENT = os.getenv("EXPERIMENT_NAME")
-RAW_SUBFOLDER = os.getenv("RAW_SUBFOLDER")
-MICROSCOPY_TYPE = os.getenv("MICROSCOPY_TYPE")
-MASK_FILENAME = os.getenv("MASK_FILENAME")
+config_path = Path(__file__).resolve().parents[1] / 'config.json'
+with open(config_path, 'r') as f:
+    config = json.load(f)
 
-# Check that variables were loaded successfully
-if not all([DATA_ROOT, EXPERIMENT, RAW_SUBFOLDER, MICROSCOPY_TYPE, MASK_FILENAME]):
-    raise ValueError("One or more required variables are not set in your .env file.")
+DATA_ROOT = Path(config["DATA_ROOT"])
+EXPERIMENT = config["CURRENT_EXPERIMENT"]
+MICROSCOPY_TYPE = config["CURRENT_MICROSCOPY_TYPE"]
 
-DATA_ROOT = Path(DATA_ROOT)
+# Drill down into the config to get settings for the current experiment
+try:
+    exp_config = config["experiments"][EXPERIMENT][MICROSCOPY_TYPE]
+    RAW_SUBFOLDER = exp_config["RAW_SUBFOLDER"]
+    MASK_FILENAME = exp_config["MASK_FILENAME"]
+except KeyError:
+    raise ValueError(f"Configuration for experiment '{EXPERIMENT}' and type '{MICROSCOPY_TYPE}' not found in config.json")
 
 # The source directory for the original images
 DATA_DIR = DATA_ROOT / "data" / "raw" / EXPERIMENT / RAW_SUBFOLDER

@@ -7,10 +7,8 @@ import os
 import math
 import matplotlib.pyplot as plt
 from pathlib import Path
-from dotenv import load_dotenv
 import seaborn as sns
-
-
+import json
 # %%
 # def add_exp_labels(df, exp):
 #     df["exp"] = [exp] * len(df)
@@ -410,13 +408,15 @@ def add_exposures_during_dormancy(df, track_column, germ_exposures_list):
 
 
 # --- Configuration ---
-load_dotenv()
-# Load the main experiment config from the environment
-DATA_ROOT = os.getenv("DATA_ROOT")
-EXPERIMENT = os.getenv("EXPERIMENT_NAME")
+config_path = Path(__file__).resolve().parents[1] / 'config.json'
+with open(config_path, 'r') as f:
+    config = json.load(f)
+
+DATA_ROOT = config["DATA_ROOT"]
+EXPERIMENT = config["CURRENT_EXPERIMENT"]
 
 if not all([DATA_ROOT, EXPERIMENT]):
-    raise ValueError("DATA_ROOT or EXPERIMENT_NAME not set in your .env file.")
+    raise ValueError("DATA_ROOT or CURRENT_EXPERIMENT not set in your config.json file.")
 
 # This variable is for labeling the output file, you can change it as needed
 EXP_LABEL = f"{EXPERIMENT}_Analysis"

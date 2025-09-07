@@ -10,13 +10,11 @@ import seaborn as sns
 # from sklearn.preprocessing import MinMaxScaler
 from matplotlib.ticker import FuncFormatter
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
-import os
 from pathlib import Path
-from dotenv import load_dotenv
 # from sklearn.cross_decomposition import PLSRegression
 # import matplotlib.colors as mcolors
-
 # import matplotlib.cm as cm
+import json
 # from sklearn.decomposition import PCA
 # from sklearn.preprocessing import StandardScaler
 
@@ -287,10 +285,13 @@ def lineplot_feature(df, feature, color_dict, germ_exp=None, track_column="TRACK
 # ---
 
 # %%
-load_dotenv()
-DATA_ROOT = os.getenv("DATA_ROOT")
-if DATA_ROOT is None:
-    raise ValueError("DATA_ROOT environment variable is not set.")
+config_path = Path(__file__).resolve().parents[1] / 'config.json'
+with open(config_path, 'r') as f:
+    config = json.load(f)
+
+DATA_ROOT = config.get("DATA_ROOT")
+if not DATA_ROOT:
+    raise ValueError("DATA_ROOT not set in your config.json file.")
 
 # --- Analysis Constants ---
 FEATURE_TO_ANALYZE = "Intensity_ThT"

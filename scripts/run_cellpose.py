@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cellpose import core, io, models  # , plot
 from natsort import natsorted
-from dotenv import load_dotenv
-import os
+import json
+
 # from tqdm import trange
 
 io.logger_setup()
@@ -15,18 +15,23 @@ if core.use_gpu() is False:
 
 model = models.CellposeModel(gpu=True)
 
-load_dotenv()
-# Load all configuration from the .env file
-DATA_ROOT = os.getenv("DATA_ROOT")
-EXPERIMENT = os.getenv("EXPERIMENT_NAME")
-RAW_SUBFOLDER = os.getenv("RAW_SUBFOLDER")
-MICROSCOPY_TYPE = os.getenv("MICROSCOPY_TYPE")
-MASK_FILENAME = os.getenv("MASK_FILENAME")
+# Load all configuration from the json file
+config_path = Path(__file__).resolve().parents[1] / "config.json"
+with open(config_path, 'r') as f:
+    config = json.load(f)
 
-if not all([DATA_ROOT, EXPERIMENT, RAW_SUBFOLDER, MICROSCOPY_TYPE, MASK_FILENAME]):
-    raise ValueError("One or more required variables are not set in your .env file.")
+DATA_ROOT = Path(config["DATA_ROOT"])
+EXPERIMENT = config["CURRENT_EXPERIMENT"]
+MICROSCOPY_TYPE = config["CURRENT_MICROSCOPY_TYPE"]  # e.g. "PhC" or "ThT"
 
-DATA_ROOT = Path(DATA_ROOT)
+# Drill down into the config to get settings for the current experiment
+try:
+    exp_config = config["experiments"][EXPERIMENT][MICROSCOPY_TYPE]
+    RAW_SUBFOLDER = exp_config["RAW_SUBFOLDER"]
+    MASK_FILENAME = exp_config["MASK_FILENAME"]
+except KeyError:
+    raise ValueError(f"Configuration for experiment '{EXPERIMENT}' and type '{MICROSCOPY_TYPE}' not found in config.json")
+
 DATA_DIR = DATA_ROOT / "data" / "raw" / EXPERIMENT / RAW_SUBFOLDER
 
 OUTPUT_DIR = DATA_ROOT / f"data/processed/cellpose/{EXPERIMENT}_{MICROSCOPY_TYPE}"
@@ -105,18 +110,11 @@ print(f"Number of flows found: {len(flows)}")
 print(f"Number of styles found: {len(styles)}")
 
 print(f"Mask shape: {masks[0].shape}")
-# print(f"Flow shape: {flows.shape}")
-# Save masks and flows
-output_file_path = OUTPUT_DIR / files[0].name
 
-# The save_masks function expects lists of images, masks, flows, and filenames
-io.save_masks(
-    [img],               # Original image, in a list
-    [masks[0]],          # Masks, in a list
-    [flows[0]],          # Flows, in a list
-    [str(output_file_path)]  # File path, in a list
-)
-print(f"Masks and flows saved to {OUTPUT_DIR}")
+# Save the generated mask using the filename specified in the config
+mask_output_path = OUTPUT_DIR / MASK_FILENAME
+io.imsave(mask_output_path, masks[0])
+print(f"Mask saved to {mask_output_path}")
 
 # fig = plt.figure(figsize=(12, 5))
 # plot.show_segmentation(fig, img, masks[0], flows[0])

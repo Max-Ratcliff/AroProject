@@ -10,7 +10,6 @@ import sys
 import subprocess
 import time
 from pathlib import Path
-from dotenv import load_dotenv
 
 
 def run_script(script_path, description):
@@ -22,7 +21,6 @@ def run_script(script_path, description):
 
 
 def main():
-    load_dotenv()
     scripts = [
         ("run_cellpose.py", "Cellpose Segmentation"),
         ("run_mask_analysis.py", "Mask Analysis"),
