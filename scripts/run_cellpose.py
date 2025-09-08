@@ -1,10 +1,11 @@
+import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 from cellpose import core, io, models  # , plot
-from natsort import natsorted
 import json
+from natsort import natsorted
 
 # from tqdm import trange
 
@@ -15,26 +16,42 @@ if core.use_gpu() is False:
 
 model = models.CellposeModel(gpu=True)
 
-# Load all configuration from the json file
-config_path = Path(__file__).resolve().parents[1] / "config.json"
-with open(config_path, 'r') as f:
-    config = json.load(f)
+parser = argparse.ArgumentParser(description="Run Cellpose to generate a master mask for a folder.")
+parser.add_argument("--input_dir", type=str, help="Path to the raw image folder. Overrides config.json.")
+parser.add_argument("--microscopy_type", type=str, help="Microscopy type (e.g., PhC, ThT). Overrides config.json.")
+args = parser.parse_args()
 
-DATA_ROOT = Path(config["DATA_ROOT"])
-EXPERIMENT = config["CURRENT_EXPERIMENT"]
-MICROSCOPY_TYPE = config["CURRENT_MICROSCOPY_TYPE"]  # e.g. "PhC" or "ThT"
+if args.input_dir:
+    DATA_DIR = Path(args.input_dir)
+    # Infer experiment name from folder path for output
+    EXPERIMENT_NAME = DATA_DIR.name
+    # This part is tricky without the config. We'll make a generic output.
+    # A more robust solution might require more arguments if not using config.
+    config_path = Path(__file__).resolve().parents[1] / "config.json"
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    DATA_ROOT = Path(config["DATA_ROOT"])
+    OUTPUT_DIR = DATA_ROOT / f"data/processed/cellpose/{EXPERIMENT_NAME}"
+    MASK_FILENAME = f"{EXPERIMENT_NAME}_master_mask.png"
+else:
+    # Load all configuration from the json file
+    config_path = Path(__file__).resolve().parents[1] / "config.json"
+    with open(config_path, 'r') as f:
+        config = json.load(f)
 
-# Drill down into the config to get settings for the current experiment
-try:
-    exp_config = config["experiments"][EXPERIMENT][MICROSCOPY_TYPE]
-    RAW_SUBFOLDER = exp_config["RAW_SUBFOLDER"]
-    MASK_FILENAME = exp_config["MASK_FILENAME"]
-except KeyError:
-    raise ValueError(f"Configuration for experiment '{EXPERIMENT}' and type '{MICROSCOPY_TYPE}' not found in config.json")
+    DATA_ROOT = Path(config["DATA_ROOT"])
+    EXPERIMENT_NAME = config["CURRENT_EXPERIMENT"]
+    MICROSCOPY_TYPE = args.microscopy_type or config["CURRENT_MICROSCOPY_TYPE"]
 
-DATA_DIR = DATA_ROOT / "data" / "raw" / EXPERIMENT / RAW_SUBFOLDER
+    try:
+        exp_config = config["experiments"][EXPERIMENT_NAME][MICROSCOPY_TYPE]
+        RAW_SUBFOLDER = exp_config["RAW_SUBFOLDER"]
+        MASK_FILENAME = exp_config["MASK_FILENAME"]
+    except KeyError:
+        raise ValueError(f"Config for experiment '{EXPERIMENT_NAME}'/'{MICROSCOPY_TYPE}' not found.")
 
-OUTPUT_DIR = DATA_ROOT / f"data/processed/cellpose/{EXPERIMENT}_{MICROSCOPY_TYPE}"
+    DATA_DIR = DATA_ROOT / "data" / "raw" / EXPERIMENT_NAME / RAW_SUBFOLDER
+    OUTPUT_DIR = DATA_ROOT / f"data/processed/cellpose/{EXPERIMENT_NAME}_{MICROSCOPY_TYPE}"
 
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

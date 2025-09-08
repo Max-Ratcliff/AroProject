@@ -36,13 +36,15 @@ def add_exp_labels(df, exp):
     df["exp"] = [exp] * len(df)
 
     exp_labels = {
-        "Leticia_M4576_s2": "10mM Pulses #3",
-        "Pulses_ThT": "Some other descriptive name",  # Add an entry for your other experiment
-        # "M4581_s1": "10mM Pulses #1", # This key format is now obsolete
-        # ... update all keys to the new format
+        "Leticia_M4576_s2": "Leticia M4576 s2",
+        "Pulses_M4581_s2": "Pulses M4581 s2",
+        "Pulses_M4584_s1": "Pulses M4584 s1",
+        # Add more descriptive names for your experiments here
     }
 
     df["Exp_Label"] = df["exp"].map(exp_labels)
+    # If an experiment is not in the map, use its raw name as the label
+    df["Exp_Label"].fillna(df["exp"], inplace=True)
     return df
 
 # %%

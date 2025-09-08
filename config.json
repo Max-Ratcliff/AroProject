@@ -1,7 +1,7 @@
 {
   "DATA_ROOT": "/Users/mratcliff/Documents/GitHub/AroProject",
-  "CURRENT_EXPERIMENT": "Leticia_M4576_s2",
-  "CURRENT_MICROSCOPY_TYPE": "PhC",
+  "CURRENT_EXPERIMENT": "Pulses_M4581_s2",
+  "CURRENT_MICROSCOPY_TYPE": "ThT",
   "experiments": {
     "Leticia_M4576_s2": {
       "PhC": {
@@ -21,6 +21,16 @@
       "ThT": {
         "RAW_SUBFOLDER": "M4581_s2_ThT_stabilized",
         "MASK_FILENAME": "M4581_s2_ThT_stabilized_0000_cp_masks.png"
+      }
+    },
+    "Pulses_M4584_s1": {
+      "PhC": {
+        "RAW_SUBFOLDER": "M4584_s1_PH_stabilized",
+        "MASK_FILENAME": "M4584_s1_PH_stabilized_0000_cp_masks.png"
+      },
+      "ThT": {
+        "RAW_SUBFOLDER": "M4584_s1_ThT_stabilized",
+        "MASK_FILENAME": "M4584_s1_ThT_stabilized_0000_cp_masks.png"
       }
     }
   }
